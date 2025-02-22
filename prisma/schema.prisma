@@ -9,6 +9,60 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String
+  email        String?     @unique
+  mobile       String?     @unique
+  password     String
+  profileImage String?     @map("profile_image")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamp(0)
+  role         Role        @default(USER)
+  challenges   Challenge[]
+
+  @@map("user")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Challenge {
+  id            Int      @id @default(autoincrement())
+  name          String
+  weightCurrent String   @map("weight_current")
+  heightCurrent String   @map("height_current")
+  weightTarget  String   @map("weight_target")
+  age           String
+  period        String
+  status        Status   @default(OnProcess)
+  weightResult  String   @map("weight_result")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  details       Detail[]
+
+  @@map("challenge")
+}
+
+enum Status {
+  OnProcess
+  Done
+}
+
+model Detail {
+  id          Int        @id @default(autoincrement())
+  message     String
+  weeklyPlan  String     @map("weekly_plan")
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId Int
+
+  @@map("detail")
 }
