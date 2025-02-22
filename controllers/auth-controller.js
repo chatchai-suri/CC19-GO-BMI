@@ -1,7 +1,10 @@
+const prisma = require('../config/prisma')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const createError = require('../utils/createError')
 
-exports.register = (req, res, next) => {
+exports.register = async (req, res, next) => {
 
   function checkEmailOrMobile(identity) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,15 +41,28 @@ exports.register = (req, res, next) => {
     const identitykey =  checkEmailOrMobile(identity)
     console.log(identitykey)
 
+    // step 3 Check user already exist?
+    const findIdentity = await prisma.user.findUnique({
+      where: {[identitykey]: identity}
+    })
+    console.log(findIdentity)
+    if(findIdentity) {
+      createError(400, 'This user is already registered', identity)
+    }
 
+    // step 4 prepare date for new user and Encrypt by bcrypt
+    const newUser = {
+      [identitykey]: identity,
+      name: name,
+      password: await bcrypt.hash(password, 10)
+    }
 
-
-    // step 3 Check already
-    // step 4 Encrypt by bcrypt
     // step 5 insert to DB
-    // step 6 response
+    const result = await prisma.user.create({data: newUser})
 
-    res.json({message: 'Hello, register'})
+    // step 6 response
+    console.log(result)
+    res.json({message: 'Register successful', result})
   } catch (error) {
     console.log('step 2 catch')
     next(error)
