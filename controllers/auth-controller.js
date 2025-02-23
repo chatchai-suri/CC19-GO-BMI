@@ -113,10 +113,10 @@ exports.login = async (req, res, next) => {
   }
 }
 
-exports.getCurrentUSer = async (req, res, next) => {
-  console.log(req.data)
+exports.getCurrentUser = (req, res, next) => {
+
   try {
-    res.json({message: 'Hello, current user' })
+    res.json({message: 'Hello, current user', user: req.user})
   } catch (error) {
     next(error)
   }

@@ -5,6 +5,7 @@ const express = require("express")
 const cors  = require("cors")
 const morgan = require("morgan")
 const authRoute = require('./routes/auth-route')
+const userRoute = require('./routes/user-route')
 const handleErrors = require('./middlewares/error')
 const notFound = require('./middlewares/notFound')
 
@@ -20,7 +21,7 @@ app.use(express.json())
 
 // Routhing
 app.use('/api/auth', authRoute)
-app.use('/api/user', ()=>{})
+app.use('/api/user', userRoute)
 
 // Not found
 app.use(notFound)
