@@ -47,7 +47,7 @@ model Challenge {
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
-  details       Detail[]
+  detail      Detail?
 
   @@map("challenge")
 }
@@ -62,7 +62,7 @@ model Detail {
   message     String?
   weeklyPlan  String?    @map("weekly_plan")
   challenge   Challenge @relation(fields: [challengeId], references: [id])
-  challengeId Int
+  challengeId Int @unique
 
   @@map("detail")
 }

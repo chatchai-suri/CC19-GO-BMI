@@ -4,25 +4,24 @@ const jwt = require('jsonwebtoken')
 
 const createError = require('../utils/createError')
 
-exports.register = async (req, res, next) => {
+function checkEmailOrMobile(identity) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const mobileRegex = /^[0-9]{10,15}$/
 
-  function checkEmailOrMobile(identity) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const mobileRegex = /^[0-9]{10,15}$/
-  
-    let identityKey = ''
-    if (emailRegex.test(identity)) {
-      identityKey = 'email'
-    }
-    if (mobileRegex.test(identity)) {
-      identityKey = 'mobile'
-    }
-    if (!identityKey) {
-      createError(400, 'only Email or Mobile phone')
-    }
-    return identityKey
+  let identityKey = ''
+  if (emailRegex.test(identity)) {
+    identityKey = 'email'
   }
+  if (mobileRegex.test(identity)) {
+    identityKey = 'mobile'
+  }
+  if (!identityKey) {
+    createError(400, 'only Email or Mobile phone')
+  }
+  return identityKey
+}
 
+exports.register = async (req, res, next) => {
   try {
     // code
     // step 1 req.body
@@ -69,11 +68,56 @@ exports.register = async (req, res, next) => {
   }
 }
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
-    res.json({message: 'Hello, login'})
+    //code
+    // step 1 req.body
+    const {identity, password} = req.body
+
+    // step 2 validation
+    if(!identity.trim() || !password.trim()) {
+      createError(400, 'Please fill in all data')
+    }
+
+    // step 3 find user
+    // 3.1 identity is email or mobile?
+    const identityKey = checkEmailOrMobile(identity)
+  
+    // 3.2 find and validate password
+    const foundUser = await prisma.user.findUnique({
+      where: {[identityKey]: identity}
+    })
+    if(!foundUser) {
+      createError(400, 'Invalid login')
+    }
+    let pwOk = await bcrypt.compare(password, foundUser.password)
+    if(!pwOk) {
+      createError(400, 'Invalid login')
+    }
+
+    // step 4 create jwt token
+    const payload = {
+      id: foundUser.id
+    }
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '15d'
+    })
+
+    // step 5 response
+    const {password: pw, createdAt, updatedAt, ...userData} = foundUser
+
+    res.json({message: 'Login successful', token, user: userData})
   } catch (error) {
     console.log('step 2 catch')
+    next(error)
+  }
+}
+
+exports.getCurrentUSer = async (req, res, next) => {
+  console.log(req.data)
+  try {
+    res.json({message: 'Hello, current user' })
+  } catch (error) {
     next(error)
   }
 }
