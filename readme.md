@@ -8,18 +8,19 @@ CLOUDINARY_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 
-## serice
+## service
 |path |method |authen |params |query |body |
 |:--  |:--  |:--  |:--  |:--  |:--  |
 |api/auth/register |post | - | - | - |{identify, username, password, confirmPassword}
 |api/auth/login |post |- |- |- |{identity, password}
 |api/auth/getCurrentUser |get |y |- |- |-
-|api/user/profile |put |y |- |- |{username, image(file)}
-|api/user/challenge |post |y |- |- |{promt for create servey or plan to AI}
+|api/user/profile |put |y |- |- |{image(file)}
+|api/user/challenge |post |y |- |- |{userId, name, weightCurrent, heightCurrent, weightTarget, age, periodWeek}
+|api/user/weeklyPlan |post |y |- |- |{challengeId, week, breakfast, lunch,    dinner, snack, calories, exerciseType, exerciseFrequency, exerciseDuration, targetWeight}
 |api/user/challenge |get |y |- |- |
 |api/user/challenge |get |y |:id |- |- |
 |api/user/challenge |delete |y |:id |- |-|
-|api/user/challenge |put |y |:id |- |{message, challenge_status}
+|api/user/challenge |put |y |:id |- |{status}
 |api/user/challenge |put |y |:id |- |{weightResult}
 
 

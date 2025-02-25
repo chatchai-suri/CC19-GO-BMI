@@ -34,20 +34,21 @@ enum Role {
 }
 
 model Challenge {
-  id            Int      @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   name          String
-  weightCurrent Float    @map("weight_current")
-  heightCurrent Float    @map("height_current")
-  weightTarget  Float    @map("weight_target")
-  age           Float
-  period        Int
-  status        Status   @default(OnProcess)
-  weightResult  Float?   @map("weight_result")
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weightCurrent Float        @map("weight_current")
+  heightCurrent Float        @map("height_current")
+  weightTarget  Float        @map("weight_target")
+  age           Int
+  periodWeek    Int          @map("period_week")
+  surveyResult  String       @map("survey_result")
+  status        Status       @default(OnProcess)
+  weightResult  Float?       @map("weight_result")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamp(0)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
-  detail      Detail?
+  weeklyPlan    WeeklyPlan[]
 
   @@map("challenge")
 }
@@ -57,12 +58,20 @@ enum Status {
   Done
 }
 
-model Detail {
-  id          Int        @id @default(autoincrement())
-  message     String?
-  weeklyPlan  String?    @map("weekly_plan")
-  challenge   Challenge @relation(fields: [challengeId], references: [id])
-  challengeId Int @unique
+model WeeklyPlan {
+  id                Int       @id @default(autoincrement())
+  week              Int
+  breakfast         String
+  lunch             String
+  dinner            String
+  snack             String
+  calories          Int
+  exerciseType      String    @map("excerise_type")
+  exerciseFrequency Int    @map("excerise_frequency")
+  exerciseDuration  Int    @map("exercise_duration")
+  targetWeight      Float     @map("target_weight")
+  challenge         Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId       Int
 
-  @@map("detail")
+  @@map("weeklyPlan")
 }

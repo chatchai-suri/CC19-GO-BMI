@@ -34,7 +34,7 @@ exports.authenticate = async (req, res, next) => {
 
     // step 4 create userData and prepare to pass to 'next()' flow
     const {password, createdAt, updatedAt, ...userData} = foundUser
-    console.log('req.user = ', userData) 
+    // console.log('req.user = ', userData) 
     req.user = userData
     next()
   } catch (error) {
